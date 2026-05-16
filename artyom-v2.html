@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Артём English</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#F8FAFC;font-family:'DM Sans',sans-serif;max-width:480px;margin:0 auto;min-height:100vh;}
+button{cursor:pointer;border:none;transition:transform 0.15s;}
+button:active{transform:scale(0.96)!important;}
+.syne{font-family:'Syne',sans-serif;}
+.screen{display:none;}.screen.active{display:block;}
+.locked{opacity:0.45;pointer-events:none;}
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 24px;border-radius:16px;font-size:14px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════ HOME ═══════════════════ -->
+<div id="home" class="screen active">
+  <div style="background:linear-gradient(160deg,#0f0c29,#302b63,#24243e);padding:40px 20px 28px;border-radius:0 0 32px 32px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(108,99,255,0.15);filter:blur(40px);"></div>
+    <div style="position:relative;z-index:2;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#6C63FF,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:24px;border:3px solid rgba(255,255,255,0.2);">⚽</div>
+        <div>
+          <div style="color:rgba(255,255,255,0.5);font-size:12px;">Привет, 👋</div>
+          <div class="syne" style="color:#fff;font-size:22px;font-weight:800;">Артём!</div>
+        </div>
+        <button onclick="go('road')" style="margin-left:auto;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:8px 12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;">🗺️ Мой путь</button>
+      </div>
+
+      <!-- Current level badge -->
+      <div id="level-badge" style="background:rgba(255,255,255,0.08);border-radius:16px;padding:14px 16px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.12);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:2px;">ТЕКУЩИЙ УРОВЕНЬ</div>
+            <div id="cur-level-label" class="syne" style="color:#fff;font-size:20px;font-weight:800;">A2</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:2px;">ДО СЛЕДУЮЩЕГО</div>
+            <div id="xp-to-next" class="syne" style="color:#F59E0B;font-size:16px;font-weight:800;">200 XP</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:8px;height:10px;overflow:hidden;">
+          <div id="level-bar" style="height:100%;border-radius:8px;background:linear-gradient(90deg,#6C63FF,#10B981);width:0%;transition:width 0.5s;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+          <span id="xp-cur" style="color:#6C63FF;font-size:10px;font-weight:700;">0 XP</span>
+          <span id="xp-max" style="color:#10B981;font-size:10px;font-weight:700;">200 XP</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <div style="flex:1;background:rgba(255,255,255,0.07);border-radius:14px;padding:10px;text-align:center;border:1px solid rgba(108,99,255,0.3);">
+          <div style="font-size:16px;">⚡</div>
+          <div id="stat-xp" class="syne" style="font-size:18px;font-weight:800;color:#6C63FF;">0</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);">Всего XP</div>
+        </div>
+        <div style="flex:1;background:rgba(255,255,255,0.07);border-radius:14px;padding:10px;text-align:center;border:1px solid rgba(245,158,11,0.3);">
+          <div style="font-size:16px;">🔥</div>
+          <div id="stat-streak" class="syne" style="font-size:18px;font-weight:800;color:#F59E0B;">0</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);">Дней</div>
+        </div>
+        <div style="flex:1;background:rgba(255,255,255,0.07);border-radius:14px;padding:10px;text-align:center;border:1px solid rgba(16,185,129,0.3);">
+          <div style="font-size:16px;">✅</div>
+          <div id="stat-words" class="syne" style="font-size:18px;font-weight:800;color:#10B981;">0</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);">Слов</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:20px 16px;display:flex;flex-direction:column;gap:12px;">
+    <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;font-weight:700;margin-bottom:2px;">Выбери раздел</div>
+
+    <button onclick="go('words')" style="background:linear-gradient(135deg,#6C63FF12,#6C63FF05);border:1px solid #6C63FF25;border-radius:20px;padding:18px 20px;text-align:left;display:flex;align-items:center;gap:16px;width:100%;">
+      <div style="width:50px;height:50px;border-radius:16px;background:#6C63FF18;border:1px solid #6C63FF30;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📚</div>
+      <div><div class="syne" style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:3px;">Слова по темам</div><div style="font-size:12px;color:#64748b;">Футбол · Ф1 · ЛЕГО · Музыка</div></div>
+      <div style="margin-left:auto;color:#6C63FF;font-size:22px;">›</div>
+    </button>
+
+    <button onclick="go('quiz')" style="background:linear-gradient(135deg,#F59E0B12,#F59E0B05);border:1px solid #F59E0B25;border-radius:20px;padding:18px 20px;text-align:left;display:flex;align-items:center;gap:16px;width:100%;">
+      <div style="width:50px;height:50px;border-radius:16px;background:#F59E0B18;border:1px solid #F59E0B30;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">⚡</div>
+      <div><div class="syne" style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:3px;">Викторина</div><div style="font-size:12px;color:#64748b;">Тест знаний · Зарабатывай XP</div></div>
+      <div style="margin-left:auto;color:#F59E0B;font-size:22px;">›</div>
+    </button>
+
+    <button onclick="go('dialogue')" style="background:linear-gradient(135deg,#10B98112,#10B98105);border:1px solid #10B98125;border-radius:20px;padding:18px 20px;text-align:left;display:flex;align-items:center;gap:16px;width:100%;">
+      <div style="width:50px;height:50px;border-radius:16px;background:#10B98118;border:1px solid #10B98130;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">💬</div>
+      <div><div class="syne" style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:3px;">Диалоги</div><div style="font-size:12px;color:#64748b;">Барселона · Гонки · Гимназия</div></div>
+      <div style="margin-left:auto;color:#10B981;font-size:22px;">›</div>
+    </button>
+
+    <button onclick="go('grammar')" style="background:linear-gradient(135deg,#EF444412,#EF444405);border:1px solid #EF444425;border-radius:20px;padding:18px 20px;text-align:left;display:flex;align-items:center;gap:16px;width:100%;">
+      <div style="width:50px;height:50px;border-radius:16px;background:#EF444418;border:1px solid #EF444430;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📖</div>
+      <div><div class="syne" style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:3px;">Грамматика</div><div id="grammar-lock-label" style="font-size:12px;color:#64748b;">Открывается на B1</div></div>
+      <div id="grammar-lock-icon" style="margin-left:auto;color:#EF4444;font-size:22px;">🔒</div>
+    </button>
+
+    <div style="background:linear-gradient(135deg,#10B98115,#6C63FF15);border:1px solid #10B98130;border-radius:20px;padding:16px 18px;display:flex;gap:12px;align-items:center;">
+      <div style="font-size:28px;">🏆</div>
+      <div><div class="syne" style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:2px;">До гимназии: ~12 месяцев</div><div style="font-size:12px;color:#64748b;line-height:1.4;">30 мин в день = B2. Ты справишься! 💪</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ROAD MAP ═══════════════════ -->
+<div id="road" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;padding:20px 16px 12px;">
+    <button onclick="go('home')" style="background:#f1f5f9;border-radius:12px;width:38px;height:38px;font-size:18px;">←</button>
+    <span class="syne" style="font-size:20px;font-weight:800;color:#1a1a2e;">🗺️ Путь до B2</span>
+  </div>
+  <div style="padding:0 16px 32px;" id="road-content"></div>
+</div>
+
+<!-- ═══════════════════ WORDS ═══════════════════ -->
+<div id="words" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;padding:20px 16px 12px;">
+    <button onclick="go('home')" style="background:#f1f5f9;border-radius:12px;width:38px;height:38px;font-size:18px;">←</button>
+    <span class="syne" style="font-size:20px;font-weight:800;color:#1a1a2e;">📚 Слова</span>
+    <div id="words-level-badge" style="margin-left:auto;border-radius:10px;padding:4px 12px;font-size:12px;font-weight:700;"></div>
+  </div>
+  <div style="padding:0 16px 32px;">
+    <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;" id="pack-tabs"></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+      <span id="word-counter" style="font-size:12px;color:#94a3b8;">Слово 1 из 8</span>
+      <span id="pack-label" style="font-size:12px;font-weight:700;"></span>
+    </div>
+    <div style="background:#f1f5f9;border-radius:8px;height:6px;margin-bottom:18px;overflow:hidden;">
+      <div id="word-progress" style="height:100%;border-radius:8px;width:12%;transition:width 0.4s;"></div>
+    </div>
+    <div id="word-card" onclick="flipCard()" style="border-radius:28px;padding:44px 28px;text-align:center;cursor:pointer;margin-bottom:16px;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background 0.4s;">
+      <div id="word-emoji" style="font-size:52px;margin-bottom:14px;"></div>
+      <div id="word-front">
+        <div id="word-text" class="syne" style="font-size:30px;font-weight:800;color:#fff;margin-bottom:8px;"></div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.4);">Нажми — узнай перевод</div>
+      </div>
+      <div id="word-back" style="display:none;">
+        <div id="word-translation" class="syne" style="font-size:22px;font-weight:700;color:#fff;margin-bottom:12px;"></div>
+        <div id="word-example" style="font-size:13px;color:rgba(255,255,255,0.75);font-style:italic;line-height:1.5;max-width:280px;"></div>
+        <div id="word-grammar" style="margin-top:10px;background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,0.9);"></div>
+      </div>
+    </div>
+    <button id="mem-btn" onclick="markMemorized()" style="width:100%;padding:13px;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;"></button>
+    <div style="display:flex;gap:10px;">
+      <button onclick="prevWord()" style="flex:1;padding:15px;background:#f1f5f9;border-radius:16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#475569;">← Назад</button>
+      <button id="next-btn" onclick="nextWord()" style="flex:2;padding:15px;border-radius:16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;">Вперёд →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ QUIZ ═══════════════════ -->
+<div id="quiz" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;padding:20px 16px 12px;">
+    <button onclick="go('home');resetQuiz();" style="background:#f1f5f9;border-radius:12px;width:38px;height:38px;font-size:18px;">←</button>
+    <span class="syne" style="font-size:20px;font-weight:800;color:#1a1a2e;">⚡ Викторина</span>
+    <div id="quiz-xp-badge" style="margin-left:auto;background:#FEF3C7;border-radius:10px;padding:6px 14px;font-family:'Syne',sans-serif;font-weight:800;color:#D97706;font-size:13px;">0 XP</div>
+  </div>
+  <div style="padding:0 16px 32px;">
+    <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;" id="quiz-tabs"></div>
+    <div id="quiz-content"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DIALOGUE ═══════════════════ -->
+<div id="dialogue" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;padding:20px 16px 12px;">
+    <button onclick="go('home')" style="background:#f1f5f9;border-radius:12px;width:38px;height:38px;font-size:18px;">←</button>
+    <span class="syne" style="font-size:20px;font-weight:800;color:#1a1a2e;">💬 Диалоги</span>
+  </div>
+  <div style="padding:0 16px 32px;">
+    <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;" id="dl-tabs"></div>
+    <div id="dl-header"></div>
+    <div id="dl-lines" style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;"></div>
+    <div id="dl-btn"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ GRAMMAR ═══════════════════ -->
+<div id="grammar" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;padding:20px 16px 12px;">
+    <button onclick="go('home')" style="background:#f1f5f9;border-radius:12px;width:38px;height:38px;font-size:18px;">←</button>
+    <span class="syne" style="font-size:20px;font-weight:800;color:#1a1a2e;">📖 Грамматика</span>
+  </div>
+  <div style="padding:0 16px 32px;" id="grammar-content"></div>
+</div>
+
+<!-- ═══════════════════ LEVEL UP OVERLAY ═══════════════════ -->
+<div id="levelup-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:32px;">
+  <div style="font-size:72px;margin-bottom:16px;">🎉</div>
+  <div class="syne" style="font-size:32px;font-weight:800;color:#fff;margin-bottom:8px;">Новый уровень!</div>
+  <div id="levelup-text" class="syne" style="font-size:48px;font-weight:800;color:#F59E0B;margin-bottom:16px;"></div>
+  <div id="levelup-desc" style="font-size:15px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:32px;"></div>
+  <button onclick="closeLevelUp()" style="background:linear-gradient(135deg,#6C63FF,#4338ca);border:none;border-radius:20px;padding:18px 40px;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;box-shadow:0 8px 32px rgba(108,99,255,0.5);">Продолжить! 🚀</button>
+</div>
+
+<script>
+// ═══════════════════ LEVEL SYSTEM ═══════════════════
+const LEVELS = [
+  {id:"A2",  label:"A2",  xpMin:0,   xpMax:200,  color:"#6C63FF", desc:"Базовые фразы и слова. Ты только начинаешь!"},
+  {id:"A2+", label:"A2+", xpMin:200, xpMax:500,  color:"#8B5CF6", desc:"Уверенные простые предложения. Говоришь о себе!"},
+  {id:"B1",  label:"B1",  xpMin:500, xpMax:1000, color:"#F59E0B", desc:"Свободные диалоги. Обсуждаешь свои интересы!"},
+  {id:"B1+", label:"B1+", xpMin:1000,xpMax:2000, color:"#EF4444", desc:"Сложные тексты, аргументация. Почти у цели!"},
+  {id:"B2",  label:"B2",  xpMin:2000,xpMax:2000, color:"#10B981", desc:"🏆 ЦЕЛЬ! Ты готов к собеседованию в гимназию!"},
+];
+
+function getCurrentLevel(xp){
+  for(let i=LEVELS.length-1;i>=0;i--) if(xp>=LEVELS[i].xpMin) return LEVELS[i];
+  return LEVELS[0];
+}
+function getLevelIndex(xp){
+  for(let i=LEVELS.length-1;i>=0;i--) if(xp>=LEVELS[i].xpMin) return i;
+  return 0;
+}
+
+// ═══════════════════ ALL WORDS BY LEVEL ═══════════════════
+const ALL_WORDS = {
+  football:{
+    icon:"⚽", label:"Football", color:"#10B981",
+    A2:[
+      {w:"Goal",tr:"Гол",e:"⚽",ex:"Messi scored an amazing goal!",gr:"noun"},
+      {w:"Ball",tr:"Мяч",e:"🟤",ex:"Pass the ball to me!",gr:"noun"},
+      {w:"Team",tr:"Команда",e:"👥",ex:"Barcelona is my favourite team.",gr:"noun"},
+      {w:"Win",tr:"Побеждать",e:"🏆",ex:"We want to win every match.",gr:"verb"},
+      {w:"Run",tr:"Бежать",e:"🏃",ex:"He can run very fast.",gr:"verb"},
+      {w:"Kick",tr:"Ударить",e:"🦵",ex:"Kick the ball into the net!",gr:"verb"},
+      {w:"Match",tr:"Матч",e:"📅",ex:"The match starts at 8 PM.",gr:"noun"},
+      {w:"Score",tr:"Счёт / забить",e:"📊",ex:"The score is 2-0.",gr:"noun/verb"},
+      {w:"Player",tr:"Игрок",e:"👤",ex:"He is the best player.",gr:"noun"},
+      {w:"Field",tr:"Поле",e:"🟩",ex:"The field is very green.",gr:"noun"},
+    ],
+    "A2+":[
+      {w:"Dribble",tr:"Вести мяч",e:"⚽",ex:"Messi can dribble past five defenders!",gr:"verb"},
+      {w:"Striker",tr:"Нападающий",e:"🎯",ex:"Ronaldo is the best striker in history.",gr:"noun"},
+      {w:"Assist",tr:"Голевая передача",e:"🅰️",ex:"He got three assists in one match.",gr:"noun"},
+      {w:"Goalkeeper",tr:"Вратарь",e:"🧤",ex:"The goalkeeper made an incredible save.",gr:"noun"},
+      {w:"Penalty",tr:"Пенальти",e:"🥅",ex:"Messi scored the penalty in the final.",gr:"noun"},
+      {w:"Defend",tr:"Защищать",e:"🛡️",ex:"He defends very well under pressure.",gr:"verb"},
+      {w:"Attack",tr:"Атаковать",e:"⚔️",ex:"Barcelona loves to attack from the wings.",gr:"verb"},
+      {w:"Captain",tr:"Капитан",e:"🏅",ex:"Messi was captain of Argentina.",gr:"noun"},
+      {w:"Coach",tr:"Тренер",e:"📋",ex:"The coach changed the strategy at halftime.",gr:"noun"},
+      {w:"Season",tr:"Сезон",e:"📆",ex:"Barcelona had an amazing season this year.",gr:"noun"},
+    ],
+    B1:[
+      {w:"Legendary",tr:"Легендарный",e:"⭐",ex:"Neymar made a legendary bicycle kick.",gr:"adjective"},
+      {w:"Tournament",tr:"Турнир",e:"🏅",ex:"Barcelona won the international tournament.",gr:"noun"},
+      {w:"Possession",tr:"Владение мячом",e:"🔄",ex:"Barcelona had 70% possession in the match.",gr:"noun"},
+      {w:"Tactics",tr:"Тактика",e:"♟️",ex:"Their tactics confused the opponents completely.",gr:"noun"},
+      {w:"Substitute",tr:"Запасной игрок",e:"🔄",ex:"He came on as a substitute in the 60th minute.",gr:"noun"},
+      {w:"Dominate",tr:"Доминировать",e:"💪",ex:"Barcelona dominated the whole first half.",gr:"verb"},
+      {w:"Rivalry",tr:"Соперничество",e:"🔥",ex:"The Messi-Ronaldo rivalry was incredible.",gr:"noun"},
+      {w:"Formation",tr:"Расстановка",e:"📐",ex:"They played a 4-3-3 formation.",gr:"noun"},
+      {w:"Breakthrough",tr:"Прорыв",e:"💥",ex:"His breakthrough came at age 17.",gr:"noun"},
+      {w:"Spectacular",tr:"Зрелищный",e:"🎆",ex:"What a spectacular overhead kick!",gr:"adjective"},
+    ],
+    "B1+":[
+      {w:"Relentless",tr:"Неустанный / неослабевающий",e:"⚡",ex:"Barcelona's relentless pressing tired the opponents.",gr:"adjective"},
+      {w:"Resilience",tr:"Стойкость",e:"🏋️",ex:"The team showed incredible resilience after going 2-0 down.",gr:"noun"},
+      {w:"Anticipate",tr:"Предугадывать",e:"🔮",ex:"A great striker anticipates where the ball will go.",gr:"verb"},
+      {w:"Pivot",tr:"Разворот / опорный игрок",e:"🔁",ex:"He pivoted sharply and fired into the top corner.",gr:"noun/verb"},
+      {w:"Vulnerable",tr:"Уязвимый",e:"😰",ex:"Their defence looked vulnerable to fast counter-attacks.",gr:"adjective"},
+      {w:"Consecutive",tr:"Последовательный",e:"🔢",ex:"They won five consecutive league titles.",gr:"adjective"},
+      {w:"Controversial",tr:"Спорный",e:"❓",ex:"The referee made a controversial offside decision.",gr:"adjective"},
+      {w:"Momentum",tr:"Момент / импульс",e:"📈",ex:"Barcelona gained momentum after the first goal.",gr:"noun"},
+      {w:"Overwhelm",tr:"Подавлять",e:"🌊",ex:"Their speed overwhelmed the defence completely.",gr:"verb"},
+      {w:"Synchronise",tr:"Синхронизировать",e:"🔗",ex:"The forwards synchronise their movements perfectly.",gr:"verb"},
+    ],
+    B2:[
+      {w:"Meticulous",tr:"Дотошный / скрупулёзный",e:"🔍",ex:"His meticulous preparation sets him apart from other players.",gr:"adjective"},
+      {w:"Pragmatic",tr:"Прагматичный",e:"🧠",ex:"The manager took a pragmatic approach to the final.",gr:"adjective"},
+      {w:"Tenacious",tr:"Цепкий / упорный",e:"🦾",ex:"His tenacious defending frustrated the opposition strikers.",gr:"adjective"},
+      {w:"Accolade",tr:"Награда / признание",e:"🏅",ex:"He received numerous accolades throughout his career.",gr:"noun"},
+      {w:"Prodigious",tr:"Выдающийся / огромный",e:"💫",ex:"His prodigious talent was evident from a young age.",gr:"adjective"},
+      {w:"Epitomise",tr:"Воплощать",e:"✨",ex:"Messi epitomises everything great about football.",gr:"verb"},
+      {w:"Subjugate",tr:"Подчинять",e:"⚔️",ex:"Their pressing system subjugated the opponents' build-up play.",gr:"verb"},
+      {w:"Nuanced",tr:"Тонкий / многогранный",e:"🎨",ex:"His nuanced understanding of space makes him exceptional.",gr:"adjective"},
+      {w:"Inevitable",tr:"Неизбежный",e:"🎯",ex:"After three near-misses, the goal felt inevitable.",gr:"adjective"},
+      {w:"Transcend",tr:"Превосходить",e:"🌟",ex:"Messi's talent transcends the sport of football.",gr:"verb"},
+    ],
+  },
+  f1:{
+    icon:"🏎️", label:"Formula 1", color:"#EF4444",
+    A2:[
+      {w:"Car",tr:"Машина",e:"🚗",ex:"The car is very fast!",gr:"noun"},
+      {w:"Race",tr:"Гонка",e:"🏁",ex:"The race starts now!",gr:"noun"},
+      {w:"Fast",tr:"Быстрый",e:"⚡",ex:"Formula 1 cars are very fast.",gr:"adjective"},
+      {w:"Win",tr:"Побеждать",e:"🏆",ex:"He wants to win the race.",gr:"verb"},
+      {w:"Crash",tr:"Авария",e:"💥",ex:"There was a crash on lap 3.",gr:"noun"},
+      {w:"Track",tr:"Трасса",e:"🛤️",ex:"Monaco has a very narrow track.",gr:"noun"},
+      {w:"Tyre",tr:"Шина",e:"🔵",ex:"The front tyre is damaged.",gr:"noun"},
+      {w:"Driver",tr:"Гонщик",e:"🧑",ex:"Who is your favourite driver?",gr:"noun"},
+      {w:"Speed",tr:"Скорость",e:"💨",ex:"The speed is 300 km/h!",gr:"noun"},
+      {w:"Flag",tr:"Флаг",e:"🏁",ex:"The chequered flag means the race is over.",gr:"noun"},
+    ],
+    "A2+":[
+      {w:"Pit stop",tr:"Пит-стоп",e:"🔧",ex:"A fast pit stop can win the race.",gr:"noun"},
+      {w:"Lap",tr:"Круг",e:"🔄",ex:"The fastest lap was 1 minute 18 seconds.",gr:"noun"},
+      {w:"Overtake",tr:"Обогнать",e:"🏎️",ex:"He managed to overtake on the last lap!",gr:"verb"},
+      {w:"Podium",tr:"Подиум",e:"🥇",ex:"He finished on the podium three times.",gr:"noun"},
+      {w:"Pole position",tr:"Поул-позиция",e:"🚦",ex:"Starting from pole is a huge advantage.",gr:"noun"},
+      {w:"Brake",tr:"Тормозить",e:"🛑",ex:"Brake hard before the corner!",gr:"verb"},
+      {w:"Helmet",tr:"Шлем",e:"⛑️",ex:"Every driver wears a safety helmet.",gr:"noun"},
+      {w:"Mechanic",tr:"Механик",e:"🔩",ex:"The mechanic changed the tyre in 2 seconds.",gr:"noun"},
+      {w:"Champion",tr:"Чемпион",e:"🏆",ex:"He is the world champion this year.",gr:"noun"},
+      {w:"Qualify",tr:"Квалифицироваться",e:"📊",ex:"He qualified in third place.",gr:"verb"},
+    ],
+    B1:[
+      {w:"Aerodynamics",tr:"Аэродинамика",e:"💨",ex:"Aerodynamics is key in Formula 1 design.",gr:"noun"},
+      {w:"Strategy",tr:"Стратегия",e:"🧠",ex:"Mercedes had a brilliant race strategy.",gr:"noun"},
+      {w:"Championship",tr:"Чемпионат",e:"🏆",ex:"He won the championship by 3 points.",gr:"noun"},
+      {w:"Undercut",tr:"Андеркат (ранний пит)",e:"📉",ex:"They used the undercut strategy perfectly.",gr:"noun/verb"},
+      {w:"Degradation",tr:"Износ (шин)",e:"📉",ex:"High tyre degradation forced an early pit stop.",gr:"noun"},
+      {w:"Sector",tr:"Сектор",e:"📐",ex:"He set the fastest time in sector 2.",gr:"noun"},
+      {w:"Backmarker",tr:"Отстающий",e:"🐢",ex:"He was held up by a backmarker.",gr:"noun"},
+      {w:"Telemetry",tr:"Телеметрия",e:"📡",ex:"Engineers analyse telemetry after every lap.",gr:"noun"},
+      {w:"Overcut",tr:"Оверкат (поздний пит)",e:"📈",ex:"The overcut worked perfectly for Hamilton.",gr:"noun"},
+      {w:"Downforce",tr:"Прижимная сила",e:"⬇️",ex:"More downforce means better cornering.",gr:"noun"},
+    ],
+    "B1+":[
+      {w:"Turbulence",tr:"Турбулентность / грязный воздух",e:"🌀",ex:"The car behind suffered turbulence in the slipstream.",gr:"noun"},
+      {w:"Differential",tr:"Дифференциал",e:"⚙️",ex:"Adjusting the differential improves corner exit speed.",gr:"noun"},
+      {w:"Controversial",tr:"Спорный",e:"❓",ex:"The penalty decision was highly controversial.",gr:"adjective"},
+      {w:"Scrutineering",tr:"Технический контроль",e:"🔍",ex:"Their car failed scrutineering after the race.",gr:"noun"},
+      {w:"Marginally",tr:"Незначительно",e:"📏",ex:"He was marginally faster in the final sector.",gr:"adverb"},
+      {w:"Consistency",tr:"Стабильность",e:"📊",ex:"Consistency across all sessions is the key to winning.",gr:"noun"},
+      {w:"Concede",tr:"Уступать / признавать",e:"🤝",ex:"He conceded the position under team orders.",gr:"verb"},
+      {w:"Deteriorate",tr:"Ухудшаться",e:"📉",ex:"The tyres started to deteriorate on lap 30.",gr:"verb"},
+      {w:"Optimise",tr:"Оптимизировать",e:"⚡",ex:"Engineers optimise every detail of the car.",gr:"verb"},
+      {w:"Trajectory",tr:"Траектория",e:"📐",ex:"He took the perfect trajectory through the corner.",gr:"noun"},
+    ],
+    B2:[
+      {w:"Imperious",tr:"Властный / превосходящий",e:"👑",ex:"Verstappen was imperious throughout the entire season.",gr:"adjective"},
+      {w:"Infringement",tr:"Нарушение",e:"🚫",ex:"The stewards investigated a potential track limits infringement.",gr:"noun"},
+      {w:"Diminishing returns",tr:"Убывающая отдача",e:"📉",ex:"The development team faced diminishing returns on updates.",gr:"phrase"},
+      {w:"Oscillate",tr:"Колебаться",e:"↔️",ex:"His performance oscillated between brilliant and inconsistent.",gr:"verb"},
+      {w:"Recalibrate",tr:"Перенастраивать",e:"🔧",ex:"The team had to recalibrate their strategy mid-race.",gr:"verb"},
+      {w:"Unprecedented",tr:"Беспрецедентный",e:"🌟",ex:"It was an unprecedented four consecutive world championship titles.",gr:"adjective"},
+      {w:"Articulate",tr:"Чётко выражать",e:"🗣️",ex:"He articulated his frustration clearly over team radio.",gr:"verb"},
+      {w:"Mitigate",tr:"Смягчать",e:"🛡️",ex:"The safety car helped mitigate the gap to the leader.",gr:"verb"},
+      {w:"Prevalent",tr:"Преобладающий",e:"📊",ex:"Tyre conservation strategies are prevalent in modern F1.",gr:"adjective"},
+      {w:"Culminate",tr:"Завершаться",e:"🏁",ex:"Years of hard work culminated in the world title.",gr:"verb"},
+    ],
+  },
+  music:{
+    icon:"🎸", label:"Music", color:"#F59E0B",
+    A2:[
+      {w:"Song",tr:"Песня",e:"🎵",ex:"My favourite song is from Barcelona!",gr:"noun"},
+      {w:"Play",tr:"Играть",e:"🎸",ex:"I play guitar every day.",gr:"verb"},
+      {w:"Loud",tr:"Громко",e:"🔊",ex:"Drums are very loud!",gr:"adjective"},
+      {w:"Beat",tr:"Удар / бит",e:"🥁",ex:"I love the beat of this song.",gr:"noun"},
+      {w:"Band",tr:"Группа",e:"🎶",ex:"I want to start a band.",gr:"noun"},
+      {w:"Note",tr:"Нота",e:"🎼",ex:"Play the right note!",gr:"noun"},
+      {w:"Singer",tr:"Певец",e:"🎤",ex:"He is a great singer.",gr:"noun"},
+      {w:"Listen",tr:"Слушать",e:"👂",ex:"I listen to music every evening.",gr:"verb"},
+      {w:"Concert",tr:"Концерт",e:"🎪",ex:"I want to go to a concert.",gr:"noun"},
+      {w:"Guitar",tr:"Гитара",e:"🎸",ex:"I have an electric guitar.",gr:"noun"},
+    ],
+    "A2+":[
+      {w:"Rhythm",tr:"Ритм",e:"🥁",ex:"Artyom has perfect rhythm on the drums.",gr:"noun"},
+      {w:"Chord",tr:"Аккорд",e:"🎸",ex:"Learn the G chord first on guitar.",gr:"noun"},
+      {w:"Melody",tr:"Мелодия",e:"🎵",ex:"The melody was stuck in my head all day.",gr:"noun"},
+      {w:"Tempo",tr:"Темп",e:"⏱️",ex:"Keep the tempo steady on the drums.",gr:"noun"},
+      {w:"Solo",tr:"Соло",e:"⭐",ex:"He played an incredible guitar solo.",gr:"noun"},
+      {w:"Rehearsal",tr:"Репетиция",e:"🎼",ex:"We have rehearsal every Thursday.",gr:"noun"},
+      {w:"Performance",tr:"Выступление",e:"🎤",ex:"His guitar performance was amazing!",gr:"noun"},
+      {w:"Talent",tr:"Талант",e:"✨",ex:"Playing two instruments shows real talent.",gr:"noun"},
+      {w:"Practice",tr:"Практиковаться",e:"🔄",ex:"I practice guitar for one hour every day.",gr:"verb/noun"},
+      {w:"Drum kit",tr:"Барабанная установка",e:"🥁",ex:"I got a new drum kit for my birthday.",gr:"noun"},
+    ],
+    B1:[
+      {w:"Improvise",tr:"Импровизировать",e:"🎲",ex:"The guitarist started to improvise on stage.",gr:"verb"},
+      {w:"Compose",tr:"Сочинять",e:"✍️",ex:"He composed his first song at age 13.",gr:"verb"},
+      {w:"Acoustic",tr:"Акустический",e:"🎵",ex:"I prefer acoustic guitar over electric.",gr:"adjective"},
+      {w:"Genre",tr:"Жанр",e:"🎭",ex:"What genre of music do you like?",gr:"noun"},
+      {w:"Lyrics",tr:"Слова песни",e:"📝",ex:"The lyrics of this song are beautiful.",gr:"noun"},
+      {w:"Pitch",tr:"Высота звука / тональность",e:"🎵",ex:"He has perfect pitch — he never plays a wrong note.",gr:"noun"},
+      {w:"Amplifier",tr:"Усилитель",e:"🔊",ex:"Plug the guitar into the amplifier.",gr:"noun"},
+      {w:"Progression",tr:"Прогрессия (аккордов)",e:"🎼",ex:"This chord progression is used in many songs.",gr:"noun"},
+      {w:"Interpret",tr:"Интерпретировать",e:"🎭",ex:"Every musician interprets the song differently.",gr:"verb"},
+      {w:"Percussion",tr:"Ударные инструменты",e:"🥁",ex:"Percussion adds energy to any track.",gr:"noun"},
+    ],
+    "B1+":[
+      {w:"Syncopation",tr:"Синкопирование",e:"🔀",ex:"The drummer used syncopation to make the beat feel unexpected.",gr:"noun"},
+      {w:"Articulation",tr:"Артикуляция",e:"🗣️",ex:"Good articulation separates a great guitarist from an average one.",gr:"noun"},
+      {w:"Resonance",tr:"Резонанс",e:"🔔",ex:"The guitar's resonance filled the whole room.",gr:"noun"},
+      {w:"Sustain",tr:"Сустейн (длительность звука)",e:"〰️",ex:"Electric guitars have more sustain than acoustic ones.",gr:"noun"},
+      {w:"Dynamics",tr:"Динамика (громкость)",e:"📊",ex:"Playing with dynamics makes the music more emotional.",gr:"noun"},
+      {w:"Collaborate",tr:"Сотрудничать",e:"🤝",ex:"He collaborated with other musicians on the album.",gr:"verb"},
+      {w:"Versatile",tr:"Разносторонний",e:"🌀",ex:"Playing both guitar and drums makes you a versatile musician.",gr:"adjective"},
+      {w:"Critique",tr:"Критиковать / критика",e:"🔍",ex:"His teacher gave him constructive critique after the performance.",gr:"noun/verb"},
+      {w:"Discipline",tr:"Дисциплина",e:"⏰",ex:"Daily practice requires real discipline.",gr:"noun"},
+      {w:"Breakthrough",tr:"Прорыв",e:"💡",ex:"He had a real breakthrough when he learned sweep picking.",gr:"noun"},
+    ],
+    B2:[
+      {w:"Virtuoso",tr:"Виртуоз",e:"🌟",ex:"He played with the skill of a true virtuoso.",gr:"noun/adjective"},
+      {w:"Innate",tr:"Врождённый",e:"🧬",ex:"His innate sense of rhythm made him a natural drummer.",gr:"adjective"},
+      {w:"Subtlety",tr:"Тонкость / нюанс",e:"🎨",ex:"The subtlety in his playing comes from years of practice.",gr:"noun"},
+      {w:"Evoke",tr:"Вызывать (эмоции)",e:"💭",ex:"Great music evokes powerful emotions in the listener.",gr:"verb"},
+      {w:"Proficiency",tr:"Мастерство / опытность",e:"🎓",ex:"His proficiency on the guitar improved dramatically this year.",gr:"noun"},
+      {w:"Captivate",tr:"Завораживать",e:"✨",ex:"His performance captivated the entire audience.",gr:"verb"},
+      {w:"Transcribe",tr:"Записывать / транскрибировать",e:"📝",ex:"He transcribed the guitar solo by ear.",gr:"verb"},
+      {w:"Emulate",tr:"Подражать с целью превзойти",e:"🎯",ex:"He tried to emulate his favourite guitarists.",gr:"verb"},
+      {w:"Distinctive",tr:"Характерный / узнаваемый",e:"🔑",ex:"Slash has a very distinctive guitar sound.",gr:"adjective"},
+      {w:"Pioneering",tr:"Новаторский",e:"🚀",ex:"Jimi Hendrix had a pioneering approach to the electric guitar.",gr:"adjective"},
+    ],
+  },
+};
+
+// ═══════════════════ QUIZ DATA BY LEVEL ═══════════════════
+const QUIZZES_BY_LEVEL = {
+  A2:[
+    {q:"What does 'team' mean?",opts:["Мяч","Команда","Поле","Гол"],c:1,e:"👥",topic:"football"},
+    {q:"'The ___ is very fast.' (car/race)",opts:["race","car","driver","track"],c:1,e:"🏎️",topic:"f1"},
+    {q:"Complete: 'I ___ guitar every day.'",opts:["plays","playing","play","played"],c:2,e:"🎸",topic:"music"},
+    {q:"What does 'kick' mean?",opts:["Поймать","Бросить","Ударить","Бежать"],c:2,e:"⚽",topic:"football"},
+    {q:"'The race ___ at 8 PM.' (start)",opts:["started","starts","starting","start"],c:1,e:"🚦",topic:"f1"},
+    {q:"What is a 'concert'?",opts:["Репетиция","Урок","Концерт","Песня"],c:2,e:"🎪",topic:"music"},
+  ],
+  "A2+":[
+    {q:"What does 'dribble' mean?",opts:["Ударить","Вести мяч","Бросить","Защищать"],c:1,e:"⚽",topic:"football"},
+    {q:"A 'pit stop' is...",opts:["Финиш","Пит-стоп для смены шин","Авария","Старт"],c:1,e:"🔧",topic:"f1"},
+    {q:"What is 'rehearsal'?",opts:["Концерт","Репетиция","Запись","Урок"],c:1,e:"🎼",topic:"music"},
+    {q:"Neymar, Messi and Suárez were a famous...",opts:["duo","trio","team","squad"],c:1,e:"⭐",topic:"football"},
+    {q:"'Pole position' means...",opts:["Последнее место","Первое место на старте","Пит-стоп","Финиш"],c:1,e:"🚦",topic:"f1"},
+    {q:"'He ___ guitar for one hour.' (practice)",opts:["practice","practises","practising","practised"],c:1,e:"🎸",topic:"music"},
+  ],
+  B1:[
+    {q:"'Barcelona had 70% ___.' (ball control)",opts:["tactics","possession","formation","momentum"],c:0,e:"⚽",topic:"football"},
+    {q:"What is 'aerodynamics' about?",opts:["Двигатель","Шины","Форма и движение воздуха","Тормоза"],c:2,e:"💨",topic:"f1"},
+    {q:"'He ___ his first song at age 13.'",opts:["wrote","composed","played","recorded"],c:1,e:"🎵",topic:"music"},
+    {q:"A 'substitute' in football is...",opts:["Нападающий","Запасной игрок","Тренер","Вратарь"],c:1,e:"🔄",topic:"football"},
+    {q:"'High tyre ___ forced an early pit stop.'",opts:["speed","downforce","degradation","telemetry"],c:2,e:"🏎️",topic:"f1"},
+    {q:"'Playing with ___ makes music more emotional.'",opts:["lyrics","dynamics","genre","pitch"],c:1,e:"🎼",topic:"music"},
+  ],
+  "B1+":[
+    {q:"'Barcelona's ___ pressing tired opponents.'",opts:["relentless","vulnerable","consecutive","nuanced"],c:0,e:"⚽",topic:"football"},
+    {q:"'His performance ___ between brilliant and inconsistent.'",opts:["oscillated","culminated","mitigated","recalibrated"],c:0,e:"🏎️",topic:"f1"},
+    {q:"'Playing with ___ makes you a versatile musician.'",opts:["sustain","discipline","syncopation","both guitar and drums"],c:3,e:"🎸",topic:"music"},
+    {q:"'They won five ___ league titles.'",opts:["controversial","relentless","consecutive","momentum"],c:2,e:"🏆",topic:"football"},
+    {q:"'Engineers ___ every detail of the car.'",opts:["optimise","deteriorate","concede","marginalise"],c:0,e:"⚙️",topic:"f1"},
+    {q:"'Good ___ separates great guitarists from average ones.'",opts:["resonance","articulation","sustain","syncopation"],c:1,e:"🎵",topic:"music"},
+  ],
+  B2:[
+    {q:"'Messi's talent ___ the sport of football.'",opts:["epitomises","transcends","subjugates","nuances"],c:1,e:"⭐",topic:"football"},
+    {q:"'It was an ___ four consecutive championships.'",opts:["imperious","unprecedented","prevalent","inevitable"],c:1,e:"🏆",topic:"f1"},
+    {q:"'His ___ sense of rhythm made him a natural drummer.'",opts:["pioneering","innate","distinctive","proficient"],c:1,e:"🥁",topic:"music"},
+    {q:"'His ___ preparation sets him apart from others.'",opts:["pragmatic","tenacious","meticulous","prodigious"],c:2,e:"⚽",topic:"football"},
+    {q:"'The team had to ___ their strategy mid-race.'",opts:["recalibrate","culminate","oscillate","articulate"],c:0,e:"🏎️",topic:"f1"},
+    {q:"'His performance ___ the entire audience.'",opts:["evoked","transcribed","captivated","emulated"],c:2,e:"🎤",topic:"music"},
+  ],
+};
+
+// ═══════════════════ DIALOGUES BY LEVEL ═══════════════════
+const DIALOGUES = [
+  {id:"tomik",icon:"🐱",title:"Tomik the Cat",color:"#6C63FF",level:"A2",minLevel:"A2",ctx:"Артём рассказывает другу про кота Томика",
+   lines:[
+    {sp:"Friend",txt:"Do you have any pets?",ru:"У тебя есть домашние животные?",left:false},
+    {sp:"Artyom",txt:"Yes! I have a cat. His name is Tomik.",ru:"Да! У меня есть кот. Его зовут Томик.",left:true},
+    {sp:"Friend",txt:"Is he funny?",ru:"Он смешной?",left:false},
+    {sp:"Artyom",txt:"Yes, very! He sleeps on my LEGO and breaks it!",ru:"Да, очень! Он спит на моём ЛЕГО и ломает его!",left:true},
+    {sp:"Friend",txt:"Does he like music?",ru:"Ему нравится музыка?",left:false},
+    {sp:"Artyom",txt:"Yes! He sits with me when I play guitar. But he runs away from drums!",ru:"Да! Он сидит со мной когда я играю на гитаре. Но убегает от барабанов!",left:true},
+  ]},
+  {id:"barcelona",icon:"⚽",title:"Watching Barcelona",color:"#10B981",level:"A2+",minLevel:"A2+",ctx:"Артём смотрит матч Барселоны с другом",
+   lines:[
+    {sp:"Artyom",txt:"Did you see that goal?! Messi is absolutely legendary!",ru:"Ты видел этот гол?! Месси — абсолютная легенда!",left:true},
+    {sp:"Friend",txt:"I know! Do you think Barcelona will win the Champions League?",ru:"Знаю! Думаешь, Барселона выиграет Лигу чемпионов?",left:false},
+    {sp:"Artyom",txt:"Definitely! Their strikers are incredible and the defence is solid.",ru:"Однозначно! Их нападающие невероятны, и защита надёжна.",left:true},
+    {sp:"Friend",txt:"What about Neymar? He was better at Barcelona, right?",ru:"А Неймар? Он был лучше в Барселоне, да?",left:false},
+    {sp:"Artyom",txt:"True. That trio — Messi, Neymar and Suárez — was unstoppable.",ru:"Правда. То трио — Месси, Неймар и Суарес — было неостановимым.",left:true},
+    {sp:"Friend",txt:"Who's your favourite player of all time?",ru:"Кто твой любимый игрок всех времён?",left:false},
+    {sp:"Artyom",txt:"Messi, no question. He's the greatest footballer who ever lived.",ru:"Месси, без вопросов. Он величайший футболист всех времён.",left:true},
+  ]},
+  {id:"f1race",icon:"🏎️",title:"Race Day with Dad",color:"#EF4444",level:"B1",minLevel:"B1",ctx:"Артём и папа Игорь смотрят гонку Ф1",
+   lines:[
+    {sp:"Dad (Игорь)",txt:"Artyom, the race starts in five minutes! Come on!",ru:"Артём, гонка начинается через пять минут! Давай!",left:false},
+    {sp:"Artyom",txt:"Coming! Who's on pole position today?",ru:"Иду! Кто сегодня на поул-позиции?",left:true},
+    {sp:"Dad (Игорь)",txt:"Verstappen, as usual. But strategy will decide everything.",ru:"Ферстаппен, как обычно. Но всё решит стратегия.",left:false},
+    {sp:"Artyom",txt:"I think an early pit stop could help. Tyre degradation is high here.",ru:"Думаю, ранний пит-стоп поможет. Здесь высокий износ шин.",left:true},
+    {sp:"Dad (Игорь)",txt:"Wow, you really know Formula 1! Where did you learn that?",ru:"Вау, ты реально разбираешься в Формуле 1! Где научился?",left:false},
+    {sp:"Artyom",txt:"I watch every race and study the aerodynamics. It's fascinating!",ru:"Я смотрю каждую гонку и изучаю аэродинамику. Это захватывающе!",left:true},
+  ]},
+  {id:"polina",icon:"👧",title:"Sister Polina",color:"#8B5CF6",level:"B1+",minLevel:"B1+",ctx:"Артём и сестра Полина спорят о музыке",
+   lines:[
+    {sp:"Polina",txt:"Artyom, can you please stop playing drums? I'm trying to study!",ru:"Артём, можешь прекратить играть на барабанах? Я пытаюсь учиться!",left:false},
+    {sp:"Artyom",txt:"Sorry Polina, just five more minutes. I'm working on my rhythm consistency.",ru:"Прости, Полина, ещё пять минут. Я работаю над стабильностью ритма.",left:true},
+    {sp:"Polina",txt:"You've been saying that for an hour! Mum and Dad will be home soon.",ru:"Ты говоришь это уже час! Мама и папа скоро придут домой.",left:false},
+    {sp:"Artyom",txt:"Actually, Mum Yulia thinks it's great that I practice every day.",ru:"На самом деле, мама Юля считает, что здорово, что я занимаюсь каждый день.",left:true},
+    {sp:"Polina",txt:"Fine. But if Tomik runs away again because of the noise, it's your fault.",ru:"Ладно. Но если Томик снова убежит из-за шума — это твоя вина.",left:false},
+    {sp:"Artyom",txt:"Deal. And I'll help you with your English homework as compensation!",ru:"Договорились. И я помогу тебе с домашним заданием по английскому в качестве компенсации!",left:true},
+  ]},
+  {id:"gymnasium",icon:"🏫",title:"Gymnasium Interview",color:"#F59E0B",level:"B2",minLevel:"B2",ctx:"Артём на вступительном собеседовании в гимназии",
+   lines:[
+    {sp:"Teacher",txt:"Good morning, Artyom. Please tell me about yourself.",ru:"Доброе утро, Артём. Пожалуйста, расскажите о себе.",left:false},
+    {sp:"Artyom",txt:"Good morning. I'm passionate about football, Formula 1, and I play guitar and drums. I also love building LEGO sets.",ru:"Доброе утро. Я увлечён футболом, Формулой 1, играю на гитаре и барабанах. Также люблю собирать ЛЕГО.",left:true},
+    {sp:"Teacher",txt:"Impressive range of interests! Why do you want to study at our gymnasium specifically?",ru:"Впечатляющий диапазон интересов! Почему именно наша гимназия?",left:false},
+    {sp:"Artyom",txt:"Because developing English to B2 level will open doors I cannot even imagine yet. I want to work internationally in sports engineering.",ru:"Потому что английский на уровне B2 откроет двери, которые я даже представить не могу. Хочу работать в спортивной инженерии на международном уровне.",left:true},
+    {sp:"Teacher",txt:"That's a very ambitious and well-articulated goal. How have you been preparing?",ru:"Это очень амбициозная и чётко сформулированная цель. Как вы готовились?",left:false},
+    {sp:"Artyom",txt:"I've been studying systematically — vocabulary in my interest areas, dialogues, and grammar. Watching Formula 1 and Barcelona matches in English has also helped enormously.",ru:"Я занимался систематически — словарный запас по своим темам, диалоги и грамматика. Просмотр Формулы 1 и матчей Барселоны на английском тоже очень помог.",left:true},
+    {sp:"Teacher",txt:"Excellent approach! We look forward to having a student with such dedication.",ru:"Отличный подход! Мы рады такому целеустремлённому студенту.",left:false},
+  ]},
+];
+
+// ═══════════════════ GRAMMAR LESSONS ═══════════════════
+const GRAMMAR = [
+  {level:"B1",icon:"⏰",title:"Present Perfect",color:"#F59E0B",
+   rule:"Используй have/has + V3 когда результат важен сейчас",
+   examples:["Messi has scored 800 goals. (рекорд существует сейчас)","I have watched every F1 race this season.","Barcelona have won the league three times."],
+   exercise:{q:"Choose: 'He ___ played guitar for 3 years.'",opts:["has","have","is","was"],c:0}},
+  {level:"B1",icon:"🔀",title:"Past Simple vs Present Perfect",color:"#EF4444",
+   rule:"Past Simple = конкретное время. Present Perfect = время не важно / связь с настоящим",
+   examples:["Messi scored in 2023. (конкретный год → Past Simple)","Messi has scored many times. (общий факт → Present Perfect)","Verstappen won last Sunday. vs He has won 3 races this season."],
+   exercise:{q:"'I ___ to Monaco before.' (never)",opts:["went","have been","was","have went"],c:1}},
+  {level:"B1+",icon:"🔮",title:"Conditional (If...)",color:"#6C63FF",
+   rule:"Type 2: If + Past Simple, would + V — воображаемые ситуации",
+   examples:["If I were Messi, I would play for Barcelona forever.","If the pit stop were faster, they would win the race.","If I practised 4 hours a day, I would become a great guitarist."],
+   exercise:{q:"'If I ___ Verstappen, I would drive every race.'",opts:["am","were","be","will be"],c:1}},
+  {level:"B1+",icon:"🔗",title:"Relative Clauses",color:"#10B981",
+   rule:"who = о людях, which/that = о вещах, where = о местах",
+   examples:["Messi, who plays for Barcelona, is the greatest ever.","The car which Verstappen drives is incredibly fast.","Camp Nou, where Barcelona play, is a legendary stadium."],
+   exercise:{q:"'The LEGO set ___ I built took 8 hours.'",opts:["who","where","which","whom"],c:2}},
+  {level:"B2",icon:"🎭",title:"Advanced Passive Voice",color:"#8B5CF6",
+   rule:"Passive = be + V3. Используй когда действующее лицо неизвестно или неважно",
+   examples:["The trophy was presented to Messi by the president.","New F1 regulations have been introduced to improve safety.","The guitar solo was composed entirely by Artyom himself."],
+   exercise:{q:"'The race ___ postponed due to rain.' (correct passive)",opts:["was","were","is been","has"],c:0}},
+  {level:"B2",icon:"📝",title:"Reported Speech",color:"#EF4444",
+   rule:"Прямая → косвенная речь: Present → Past, will → would, can → could",
+   examples:["Direct: 'I love Formula 1.' → Reported: He said he loved Formula 1.","Direct: 'Barcelona will win.' → He predicted that Barcelona would win.","Direct: 'I can play drums.' → She said she could play drums."],
+   exercise:{q:"'I am a Barcelona fan.' → He said he ___ a Barcelona fan.",opts:["is","was","were","has been"],c:1}},
+];
+
+// ═══════════════════ STATE ═══════════════════
+let xp = 0, memorized = new Set(), streak = 0;
+let packId = "football", packLevel = "A2", wordIdx = 0, flipped = false;
+let quizLevelId = "A2", qIdx = 0, qScore = 0, qSel = null, qDone = false;
+let dlId = "tomik", dlLine = 0, showRu = false;
+let grammarIdx = 0, grammarAnswered = false;
+
+// ═══════════════════ HELPERS ═══════════════════
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='words'){initWords();}
+  if(id==='quiz'){initQuiz();}
+  if(id==='dialogue'){initDialogue();}
+  if(id==='grammar'){initGrammar();}
+  if(id==='road'){renderRoad();}
+  if(id==='home'){updateHome();}
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function addXP(n){
+  const prevLevel=getLevelIndex(xp);
+  xp+=n;
+  const newLevel=getLevelIndex(xp);
+  updateHome();
+  if(newLevel>prevLevel) showLevelUp(LEVELS[newLevel]);
+}
+
+function updateHome(){
+  const lv=getCurrentLevel(xp);
+  const li=getLevelIndex(xp);
+  document.getElementById('stat-xp').textContent=xp;
+  document.getElementById('stat-words').textContent=memorized.size;
+  document.getElementById('stat-streak').textContent=streak;
+  document.getElementById('cur-level-label').textContent=lv.label;
+  const next=LEVELS[Math.min(li+1,LEVELS.length-1)];
+  const pct=li>=LEVELS.length-1?100:Math.round((xp-lv.xpMin)/(next.xpMin-lv.xpMin)*100);
+  document.getElementById('level-bar').style.width=pct+'%';
+  document.getElementById('level-bar').style.background=`linear-gradient(90deg,${lv.color},${next.color})`;
+  document.getElementById('xp-cur').textContent=xp+' XP';
+  document.getElementById('xp-max').textContent=(li>=LEVELS.length-1?'MAX':next.xpMin)+' XP';
+  document.getElementById('xp-to-next').textContent=li>=LEVELS.length-1?'MAX 🏆':(next.xpMin-xp)+' XP';
+  // grammar lock
+  const gramUnlocked=getLevelIndex(xp)>=2;
+  const gl=document.getElementById('grammar-lock-label');
+  const gi=document.getElementById('grammar-lock-icon');
+  if(gramUnlocked){
+    gl.textContent='Времена · Условные · Пассив';
+    gi.textContent='›';
+    gi.style.color='#EF4444';
+    document.querySelector('button[onclick="go(\'grammar\')"]').classList.remove('locked');
+  } else {
+    gl.textContent='Открывается на уровне B1 (500 XP)';
+    gi.textContent='🔒';
+    document.querySelector('button[onclick="go(\'grammar\')"]').classList.add('locked');
+  }
+}
+
+function showLevelUp(lv){
+  document.getElementById('levelup-text').textContent=lv.label;
+  document.getElementById('levelup-desc').textContent=lv.desc;
+  const ol=document.getElementById('levelup-overlay');
+  ol.style.display='flex';
+}
+function closeLevelUp(){
+  document.getElementById('levelup-overlay').style.display='none';
+}
+
+// ═══════════════════ ROAD MAP ═══════════════════
+function renderRoad(){
+  const li=getLevelIndex(xp);
+  let html=`<div style="background:linear-gradient(135deg,#0f0c29,#302b63);border-radius:24px;padding:22px 20px;margin-bottom:20px;">
+    <div class="syne" style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;">Артём → Гимназия</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.6);">От A2 до B2 · 30 мин/день · ~12 месяцев</div>
+  </div>`;
+  LEVELS.forEach((lv,i)=>{
+    const done=xp>=lv.xpMin;
+    const current=i===li;
+    const descs=["Базовые фразы и слова. Ты здесь сейчас! 👋","Уверенные простые предложения. Говоришь о своих интересах!","Свободные диалоги. Обсуждаешь футбол и Ф1 по-английски!","Сложные тексты, аргументация. Почти у цели!","🏆 ЦЕЛЬ! Ты готов к собеседованию в гимназию!"];
+    const reqs=["Старт!","200 XP","500 XP","1000 XP","2000 XP"];
+    html+=`<div style="display:flex;gap:16px;margin-bottom:16px;align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div style="width:48px;height:48px;border-radius:50%;background:${done?lv.color:lv.color+'20'};border:3px solid ${lv.color};display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:${done?'#fff':lv.color};flex-shrink:0;">${done?'✓':lv.label}</div>
+        ${i<LEVELS.length-1?`<div style="width:2px;height:36px;background:${lv.color}40;margin-top:4px;"></div>`:''}
+      </div>
+      <div style="flex:1;background:${current?lv.color+'15':'#f8fafc'};border:${current?`2px solid ${lv.color}`:`1px solid ${lv.color}30`};border-radius:16px;padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <div class="syne" style="font-size:16px;font-weight:800;color:#1a1a2e;">${lv.label}${current?' ← ТЫ ЗДЕСЬ':''}</div>
+          <div style="background:${lv.color}20;color:${lv.color};border-radius:8px;padding:2px 10px;font-size:11px;font-weight:700;">${reqs[i]}</div>
+        </div>
+        <div style="font-size:13px;color:#64748b;line-height:1.5;">${descs[i]}</div>
+      </div>
+    </div>`;
+  });
+  html+=`<div style="background:linear-gradient(135deg,#10B98120,#6C63FF20);border:1px solid #10B98140;border-radius:20px;padding:20px;margin-top:8px;">
+    <div class="syne" style="font-size:15px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">📅 Твой план на неделю</div>
+    ${[["📚","Пн / Чт","10 новых слов по теме своего уровня"],["💬","Вт / Пт","1 диалог + повтор слов прошлой недели"],["⚡","Ср / Сб","Викторина своего уровня + грамматика (B1+)"],["🏎️","Вс","Смотри Ф1 / футбол на английском — это тоже учёба!"]].map(([ic,day,task])=>`
+    <div style="background:#fff;border-radius:12px;padding:10px 14px;display:flex;gap:12px;align-items:center;margin-bottom:8px;">
+      <span style="font-size:18px;">${ic}</span>
+      <div><div class="syne" style="font-size:11px;font-weight:700;color:#6C63FF;">${day}</div><div style="font-size:12px;color:#475569;">${task}</div></div>
+    </div>`).join('')}
+  </div>`;
+  document.getElementById('road-content').innerHTML=html;
+}
+
+// ═══════════════════ WORDS ═══════════════════
+function getAvailablePackLevels(pid){
+  const li=getLevelIndex(xp);
+  return LEVELS.slice(0,li+1).map(l=>l.id).filter(lid=>ALL_WORDS[pid][lid]);
+}
+
+function initWords(){
+  // tabs for packs
+  const tabsEl=document.getElementById('pack-tabs');
+  tabsEl.innerHTML=Object.keys(ALL_WORDS).map(pid=>{
+    const p=ALL_WORDS[pid];
+    const active=pid===packId;
+    return `<button onclick="setPack('${pid}')" style="flex-shrink:0;background:${active?p.color:'#f1f5f9'};border:none;border-radius:14px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:${active?'#fff':'#64748b'};">${p.icon} ${p.label}</button>`;
+  }).join('');
+  renderWord();
+}
+
+function setPack(pid){
+  packId=pid;wordIdx=0;flipped=false;
+  // set default level for this pack
+  const avail=getAvailablePackLevels(pid);
+  packLevel=avail[avail.length-1];
+  document.getElementById('pack-tabs').querySelectorAll('button').forEach((b,i)=>{
+    const pid2=Object.keys(ALL_WORDS)[i];
+    const p=ALL_WORDS[pid2];
+    b.style.background=pid2===packId?p.color:'#f1f5f9';
+    b.style.color=pid2===packId?'#fff':'#64748b';
+  });
+  renderWord();
+}
+
+function renderWord(){
+  const p=ALL_WORDS[packId];
+  const words=p[packLevel]||p['A2'];
+  const w=words[Math.min(wordIdx,words.length-1)];
+  flipped=false;
+  const card=document.getElementById('word-card');
+  card.style.background=`linear-gradient(135deg,#1a1a2e,#302b63)`;
+  card.style.boxShadow=`0 16px 48px ${p.color}30`;
+  document.getElementById('word-emoji').textContent=w.e;
+  document.getElementById('word-text').textContent=w.w;
+  document.getElementById('word-translation').textContent=w.tr;
+  document.getElementById('word-example').textContent=`"${w.ex}"`;
+  document.getElementById('word-grammar').textContent=w.gr;
+  document.getElementById('word-front').style.display='block';
+  document.getElementById('word-back').style.display='none';
+  document.getElementById('word-counter').textContent=`Слово ${wordIdx+1} из ${words.length}`;
+  document.getElementById('pack-label').textContent=`${p.icon} ${p.label} · ${packLevel}`;
+  document.getElementById('pack-label').style.color=p.color;
+  document.getElementById('word-progress').style.width=((wordIdx+1)/words.length*100)+'%';
+  document.getElementById('word-progress').style.background=p.color;
+  document.getElementById('next-btn').style.background=p.color;
+  document.getElementById('next-btn').style.boxShadow=`0 8px 24px ${p.color}40`;
+  // level badge
+  const li=getLevelIndex(xp);
+  const lv=getCurrentLevel(xp);
+  document.getElementById('words-level-badge').textContent=`Уровень ${packLevel}`;
+  document.getElementById('words-level-badge').style.background=`${lv.color}20`;
+  document.getElementById('words-level-badge').style.color=lv.color;
+  // level selector buttons (inline row)
+  const avail=getAvailablePackLevels(packId);
+  // mem btn
+  const key=`${packId}-${packLevel}-${wordIdx}`;
+  const mem=memorized.has(key);
+  const mb=document.getElementById('mem-btn');
+  mb.textContent=mem?'✅ Выучено! +15 XP':'☐ Запомнил';
+  mb.style.background=mem?`${p.color}15`:'#f8fafc';
+  mb.style.border=`1.5px solid ${mem?p.color:'#e2e8f0'}`;
+  mb.style.color=mem?p.color:'#64748b';
+}
+
+function flipCard(){
+  flipped=!flipped;
+  const p=ALL_WORDS[packId];
+  if(flipped){
+    document.getElementById('word-card').style.background=`linear-gradient(135deg,${p.color},${p.color}bb)`;
+    document.getElementById('word-front').style.display='none';
+    document.getElementById('word-back').style.display='block';
+    addXP(5);
+  } else {
+    document.getElementById('word-card').style.background=`linear-gradient(135deg,#1a1a2e,#302b63)`;
+    document.getElementById('word-front').style.display='block';
+    document.getElementById('word-back').style.display='none';
+  }
+}
+
+function markMemorized(){
+  const key=`${packId}-${packLevel}-${wordIdx}`;
+  if(!memorized.has(key)){memorized.add(key);addXP(15);toast('+15 XP! Отлично!');}
+  renderWord();
+}
+function nextWord(){
+  const words=ALL_WORDS[packId][packLevel]||ALL_WORDS[packId]['A2'];
+  if(wordIdx<words.length-1){wordIdx++;addXP(3);}
+  else {
+    // try to go to next level
+    const avail=getAvailablePackLevels(packId);
+    const ci=avail.indexOf(packLevel);
+    if(ci<avail.length-1){packLevel=avail[ci+1];wordIdx=0;toast('🎉 Следующий уровень слов!');}
+    else toast('✅ Все слова этого уровня пройдены!');
+  }
+  renderWord();
+}
+function prevWord(){if(wordIdx>0)wordIdx--;renderWord();}
+
+// ═══════════════════ QUIZ ═══════════════════
+function initQuiz(){
+  // build level tabs — only available levels
+  const li=getLevelIndex(xp);
+  const tabs=document.getElementById('quiz-tabs');
+  tabs.innerHTML=LEVELS.slice(0,li+1).map(lv=>`
+    <button onclick="setQuizLevel('${lv.id}')" id="qtab-${lv.id}" style="flex-shrink:0;background:${lv.id===quizLevelId?lv.color:'#f1f5f9'};border:none;border-radius:14px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:${lv.id===quizLevelId?'#fff':'#64748b'};">${lv.label}</button>
+  `).join('');
+  quizLevelId=LEVELS[Math.min(li,LEVELS.length-1)].id;
+  resetQuiz();
+}
+function setQuizLevel(id){
+  quizLevelId=id;resetQuiz();
+  document.querySelectorAll('[id^="qtab-"]').forEach(b=>{
+    const lvId=b.id.replace('qtab-','');
+    const lv=LEVELS.find(l=>l.id===lvId);
+    b.style.background=lvId===quizLevelId?lv.color:'#f1f5f9';
+    b.style.color=lvId===quizLevelId?'#fff':'#64748b';
+  });
+}
+function resetQuiz(){qIdx=0;qScore=0;qSel=null;qDone=false;renderQuiz();}
+function handleAnswer(i){
+  if(qSel!==null)return;
+  qSel=i;
+  const qs=QUIZZES_BY_LEVEL[quizLevelId];
+  if(i===qs[qIdx].c){qScore++;addXP(30);document.getElementById('quiz-xp-badge').textContent=qScore*30+' XP';}
+  renderQuiz();
+  setTimeout(()=>{
+    if(qIdx+1>=qs.length){qDone=true;}
+    else{qIdx++;qSel=null;}
+    renderQuiz();
+  },900);
+}
+function renderQuiz(){
+  const el=document.getElementById('quiz-content');
+  const qs=QUIZZES_BY_LEVEL[quizLevelId];
+  const lv=LEVELS.find(l=>l.id===quizLevelId);
+  if(qDone){
+    el.innerHTML=`<div style="text-align:center;padding:32px 0;">
+      <div style="font-size:60px;margin-bottom:12px;">${qScore>=5?'🏆':qScore>=3?'⭐':'💪'}</div>
+      <div class="syne" style="font-size:26px;font-weight:800;color:#1a1a2e;margin-bottom:8px;">${qScore>=5?'Отлично, Артём!':qScore>=3?'Хорошо!':'Продолжай!'}</div>
+      <div style="color:#64748b;font-size:15px;margin-bottom:24px;">${qScore} из ${qs.length} правильно · Уровень ${lv.label}</div>
+      <div style="background:#FEF3C720;border:1px solid #F59E0B40;border-radius:20px;padding:20px;margin-bottom:24px;">
+        <div class="syne" style="font-size:30px;font-weight:800;color:#D97706;">+${qScore*30} XP</div>
+      </div>
+      <button onclick="resetQuiz()" style="background:${lv.color};border:none;border-radius:16px;padding:15px 40px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;box-shadow:0 8px 24px ${lv.color}50;">Ещё раз!</button>
+    </div>`;
+    return;
+  }
+  const q=qs[qIdx];
+  el.innerHTML=`
+    <div style="background:#f1f5f9;border-radius:8px;height:6px;margin-bottom:20px;overflow:hidden;">
+      <div style="height:100%;border-radius:8px;background:${lv.color};width:${(qIdx/qs.length*100)}%;transition:width 0.4s;"></div>
+    </div>
+    <div style="background:linear-gradient(135deg,#1a1a2e,#302b63);border-radius:24px;padding:28px 22px;margin-bottom:20px;text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">${q.e}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">Уровень ${lv.label} · ${qIdx+1}/${qs.length}</div>
+      <div class="syne" style="font-size:18px;font-weight:700;color:#fff;line-height:1.4;">${q.q}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${q.opts.map((o,i)=>{
+        let bg='#fff',border='#e2e8f0',col='#1a1a2e';
+        if(qSel!==null){if(i===q.c){bg='#ECFDF5';border='#10B981';col='#065f46';}else if(i===qSel){bg='#FEF2F2';border='#EF4444';col='#991b1b';}}
+        return `<button onclick="handleAnswer(${i})" style="background:${bg};border:2px solid ${border};border-radius:14px;padding:15px 18px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:${col};text-align:left;display:flex;align-items:center;gap:12px;">
+          <span style="width:28px;height:28px;border-radius:8px;flex-shrink:0;background:${(qSel!==null&&i===q.c)?'#10B981':(qSel!==null&&i===qSel)?'#EF4444':'#f1f5f9'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:${(qSel!==null&&(i===q.c||i===qSel))?'#fff':'#94a3b8'};">${String.fromCharCode(65+i)}</span>${o}
+        </button>`;
+      }).join('')}
+    </div>`;
+}
+
+// ═══════════════════ DIALOGUE ═══════════════════
+function initDialogue(){
+  const li=getLevelIndex(xp);
+  const curLvLabel=LEVELS[li].id;
+  // tabs
+  document.getElementById('dl-tabs').innerHTML=DIALOGUES.map(d=>{
+    const locked=getLevelIndex(xp)<LEVELS.findIndex(l=>l.id===d.minLevel);
+    return `<button onclick="${locked?'toast(\'🔒 Открывается на уровне '+d.level+'!\')':'setDl(\''+d.id+'\')'}" style="flex-shrink:0;background:${dlId===d.id?d.color:'#f1f5f9'};border:none;border-radius:14px;padding:10px 14px;font-family:\'DM Sans\',sans-serif;font-size:12px;font-weight:600;color:${dlId===d.id?'#fff':'#64748b'};opacity:${locked?0.4:1};">${d.icon} ${d.title}${locked?' 🔒':''}</button>`;
+  }).join('');
+  renderDialogue();
+}
+function setDl(id){dlId=id;dlLine=0;showRu=false;renderDialogue();}
+function renderDialogue(){
+  const d=DIALOGUES.find(x=>x.id===dlId);
+  document.getElementById('dl-header').innerHTML=`
+    <div style="background:${d.color}15;border:1px solid ${d.color}30;border-radius:20px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;">
+      <div style="font-size:32px;">${d.icon}</div>
+      <div style="flex:1;">
+        <div class="syne" style="font-size:16px;font-weight:800;color:#1a1a2e;">${d.title}</div>
+        <div style="font-size:12px;color:#64748b;">${d.ctx}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+        <div style="background:${d.color}20;color:${d.color};border-radius:8px;padding:2px 10px;font-size:11px;font-weight:700;">${d.level}</div>
+        <button onclick="showRu=!showRu;renderDialogue();" style="background:${showRu?d.color:'#f1f5f9'};border:none;border-radius:8px;padding:4px 10px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:${showRu?'#fff':'#64748b'};">🇷🇺</button>
+      </div>
+    </div>`;
+  document.getElementById('dl-lines').innerHTML=d.lines.slice(0,dlLine+1).map(l=>`
+    <div style="display:flex;flex-direction:${l.left?'row':'row-reverse'};gap:10px;align-items:flex-end;">
+      <div style="width:34px;height:34px;border-radius:50%;background:${l.left?d.color+'25':'#f1f5f9'};border:2px solid ${l.left?d.color:'#e2e8f0'};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${l.left?'🧒':'👤'}</div>
+      <div style="max-width:74%;">
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:3px;text-align:${l.left?'left':'right'};">${l.sp}</div>
+        <div style="background:${l.left?d.color+'12':'#f8fafc'};border:1px solid ${l.left?d.color+'25':'#e2e8f0'};border-radius:${l.left?'4px 18px 18px 18px':'18px 4px 18px 18px'};padding:11px 14px;">
+          <div style="font-size:14px;color:#1a1a2e;line-height:1.5;margin-bottom:${showRu?'6px':'0'};">${l.txt}</div>
+          ${showRu?`<div style="font-size:12px;color:#94a3b8;font-style:italic;border-top:1px dashed #e2e8f0;padding-top:6px;">${l.ru}</div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+  const btn=document.getElementById('dl-btn');
+  if(dlLine<d.lines.length-1){
+    btn.innerHTML=`<button onclick="dlLine++;addXP(10);renderDialogue();" style="width:100%;padding:15px;background:${d.color};border:none;border-radius:16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;box-shadow:0 8px 24px ${d.color}40;">Следующая реплика →</button>`;
+  } else {
+    btn.innerHTML=`<div style="text-align:center;padding:16px 0;">
+      <div style="font-size:48px;margin-bottom:10px;">🎉</div>
+      <div class="syne" style="font-size:20px;font-weight:800;color:#1a1a2e;margin-bottom:6px;">Молодец, Артём!</div>
+      <div style="color:#64748b;font-size:13px;margin-bottom:20px;">+${d.lines.length*10} XP заработано</div>
+      <button onclick="dlLine=0;showRu=false;renderDialogue();" style="background:#f1f5f9;border:none;border-radius:14px;padding:14px 32px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#475569;">Читать снова</button>
+    </div>`;
+  }
+}
+
+// ═══════════════════ GRAMMAR ═══════════════════
+function initGrammar(){
+  const li=getLevelIndex(xp);
+  if(li<2){go('home');toast('🔒 Открывается на B1 (500 XP)!');return;}
+  renderGrammar();
+}
+function renderGrammar(){
+  const available=GRAMMAR.filter(g=>getLevelIndex(xp)>=LEVELS.findIndex(l=>l.id===g.level));
+  const g=available[grammarIdx]||available[0];
+  if(!g){document.getElementById('grammar-content').innerHTML='<p>Нет доступных тем.</p>';return;}
+  document.getElementById('grammar-content').innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
+      ${available.map((gr,i)=>`<button onclick="grammarIdx=${i};grammarAnswered=false;renderGrammar();" style="flex-shrink:0;background:${i===grammarIdx?gr.color:'#f1f5f9'};border:none;border-radius:12px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:${i===grammarIdx?'#fff':'#64748b'};">${gr.icon} ${gr.title}</button>`).join('')}
+    </div>
+    <div style="background:linear-gradient(135deg,#0f0c29,#302b63);border-radius:24px;padding:24px;margin-bottom:16px;">
+      <div style="font-size:32px;margin-bottom:12px;">${g.icon}</div>
+      <div class="syne" style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;">${g.title}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);">Уровень ${g.level}</div>
+    </div>
+    <div style="background:${g.color}12;border:1px solid ${g.color}30;border-radius:20px;padding:20px;margin-bottom:16px;">
+      <div class="syne" style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">📌 Правило</div>
+      <div style="font-size:14px;color:#475569;line-height:1.6;">${g.rule}</div>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;padding:20px;margin-bottom:16px;">
+      <div class="syne" style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">💡 Примеры</div>
+      ${g.examples.map(ex=>`<div style="font-size:13px;color:#475569;margin-bottom:8px;padding-left:12px;border-left:3px solid ${g.color};line-height:1.5;">${ex}</div>`).join('')}
+    </div>
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:20px;">
+      <div class="syne" style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:16px;">✏️ Упражнение</div>
+      <div style="font-size:15px;color:#1a1a2e;margin-bottom:16px;line-height:1.5;">${g.exercise.q}</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${g.exercise.opts.map((o,i)=>{
+          let bg='#f8fafc',border='#e2e8f0',col='#1a1a2e';
+          if(grammarAnswered){if(i===g.exercise.c){bg='#ECFDF5';border='#10B981';col='#065f46';}else{bg='#fafafa';col='#94a3b8';}}
+          return `<button onclick="if(!grammarAnswered){grammarAnswered=true;${i===g.exercise.c?`addXP(20);toast('+20 XP! Правильно! 🎉')`:`toast('Неправильно. Правильный ответ: ${o.replace("'","\\'")} — см. правило!')`};renderGrammar();}" style="background:${bg};border:2px solid ${border};border-radius:12px;padding:13px 16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:${col};text-align:left;display:flex;gap:10px;align-items:center;">
+            <span style="width:26px;height:26px;border-radius:7px;background:${grammarAnswered&&i===g.exercise.c?'#10B981':'#f1f5f9'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:${grammarAnswered&&i===g.exercise.c?'#fff':'#94a3b8'};flex-shrink:0;">${String.fromCharCode(65+i)}</span>${o}
+          </button>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+// ═══════════════════ INIT ═══════════════════
+try{if(window.Telegram&&window.Telegram.WebApp)window.Telegram.WebApp.ready();}catch(e){}
+updateHome();
+</script>
+</body>
+</html>
